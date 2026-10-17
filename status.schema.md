@@ -9,26 +9,31 @@ in the same folder. Shared logic lives in `shared.js` / `shared.css`.
 ## Live controls (header)
 
 The page **never fetches `status.json` on load**. It opens **paused**, runs the demo animation and shows `Paused · demo`.
+There are no webhooks, no settings panel and no stored keys. The page only reads the published `status.json`.
 
 | Control | Behavior |
 |---|---|
-| **Refresh** (blue) | Goes **live**: fetches `status.json` now and every 60 s (with a `?t=<ms>` cache-buster). The badge reads `Live · updated HH:MM WIB · auto-pause in 1h59m`. If a webhook is configured, also POSTs to it (see below). Pressing it again while live **restarts the 2-hour window**. |
-| **Pause** (grey) | Stops polling immediately and returns to paused/demo. |
-| **Auto-pause** | Exactly 2 h after the most recent Refresh press, the page pauses itself. |
-| **Gear** | Settings: *Webhook URL*, *Sender key*, *Key header name* (default `Authorization`). Saved **only in this browser's localStorage** (`agentOffice.settings.v1`). **Clear** removes them. Never stored in the repo or page source. |
+| **Refresh** (blue) | Goes **live** and re-reads `status.json` now, then every 60 s (with a `?t=<ms>` cache-buster). The badge reads `Live · updated HH:MM WIB · auto-pause in 1h59m`. Pressing it again while live re-reads immediately and restarts the 2 h window. |
+| **Pause** (grey) | Stops polling immediately and returns to paused/demo. Disabled unless live. |
+| **Auto-pause** | Exactly 2 h after the most recent Refresh press, the page pauses itself and shows a quiet note. |
 
-Webhook request (only if a URL is set):
-- `POST <Webhook URL>`, `Content-Type: application/json`, body `{"action":"refresh_status","requested_at":"<ISO UTC>"}`.
-- Key header: if the header name is `Authorization`, it is sent as `Bearer <key>`. Any other name (e.g. `X-Sender-Key`) sends the raw key. With no key set, no key header is sent.
-- Fire and forget. The Refresh button shows **Updating…** until `status.json`'s `updated_at` changes (or reaches the request time), or 5 minutes pass.
-- At most **once per 5 minutes** (stored as `agentOffice.lastUpdateRequest`). While live and inside that window, Refresh is disabled and shows `Refresh in m:ss`. Pressing Refresh from paused during the window goes live without re-sending the request.
-- On a CORS/network/HTTP failure, the page shows a quiet note: *Couldn't request an update, showing the last snapshot*. The receiver must allow CORS from `https://lkoesmanto.github.io` (preflight `OPTIONS` for `Content-Type` + the key header).
-- Without a webhook, Refresh still goes live with whatever `status.json` is already published.
+To get fresher data, the writer job publishes a new `status.json`. Refresh just picks up whatever is published.
+(Settings from older versions, `agentOffice.settings.v1` / `agentOffice.lastUpdateRequest`, are deleted from localStorage on load.)
 
 Query params: `?demo=1` (always demo; Refresh disabled), `?status=<url>` (snapshot URL used when live),
-`?autopause=<minutes>` (test override for the 2 h window), `?hour=<0-23>` (window light preview).
+`?autopause=<minutes>` (test override for the 2 h window), `?hour=<0-23>` (window light preview),
+`?handoff=<from>,<to>[,label]` (demo test: queue one handoff right away, e.g. `?demo=1&handoff=brin,luke` for a cross-floor walk).
 The **Pixel | 3D** switch keeps the current query string.
-`3d.html` is a three.js (r160, pinned on jsDelivr) low-poly version of the same office. It uses the same `shared.js` data layer and controls, so every rule here applies to both views.
+
+## 3D view (`3d.html`)
+
+A three.js (r160, pinned on jsDelivr) low-poly **two-storey cutaway office**: the front wall and ceiling are removed, so both floors are visible.
+It uses the same `shared.js` data layer and controls, so every rule in this document applies to both views.
+
+- **Upstairs, executive floor:** a glass-railed mezzanine. **Archangel** (Chief of Staff) sits at the corner boss desk: L-shaped walnut desk, dual monitors, leather high-back chair, brass *Chief of Staff* nameplate, rug and plants, with a larger gold label and a ★ badge. Atlas, Wish and Brin sit in the back row, AltModei and Ote2 in the front row.
+- **Downstairs, operations:** Waktu, Willow, Lake and Luke (back row) and Alx, Kate and Presentation Coach (front row), plus the coffee station, lounge, whiteboard and wall clock.
+- **Stairs:** an open-riser staircase with glass balustrades on the right. A handoff between floors walks along the aisle, up or down the stairs, and over to the receiving desk.
+- A single shadow-casting light. Orbit with drag and zoom with scroll (no pan, limited angles). The camera drifts slowly when nobody has touched it for 6 s.
 
 ## Top-level object
 
@@ -48,17 +53,19 @@ The **Pixel | 3D** switch keeps the current query string.
 | `name` | string | no | Display name override (≤ 40 chars). |
 | `role` | string | no | Role shown on the nameplate (≤ 40 chars). |
 | `state` | `"working"` \| `"thinking"` \| `"idle"` \| `"stretching"` | yes | Drives the animation. Unknown values are ignored and the previous state is kept. **`working` with a task containing "stretch" (case-insensitive) is shown as `stretching`.** |
-| `task` | string | yes | Caption under the desk (≤ 140 chars, clamped to 2 lines). **Keep it generic.** |
+| `task` | string | yes | Caption under the desk (≤ 140 chars; 2 lines in Pixel, 1 line in 3D). **Keep it generic.** |
 
 Animations: **working** = typing, **thinking** = thought bubble, **idle** = leaning back with coffee,
 **stretching** = standing beside the chair, arms overhead, side bends and shoulder rolls (green-teal dot; per-agent timing offsets so the team doesn't move in lockstep).
 
 The `handoff` state is never written by hand. The page shows it automatically while an agent walks a handoff over.
 
-Desk ids, in the order they appear on screen:
+Desk ids (fixed). Pixel view order:
 
 Row 1: `archangel`, `waktu`, `willow`, `atlas`, `wish`, `altmodei`, `brin`
 Row 2: `lake`, `ote2`, `luke`, `alx`, `kate`, `coach` (then the lounge)
+
+3D view: upstairs `archangel` (boss desk), `atlas`, `wish`, `brin`, `altmodei`, `ote2`; downstairs `waktu`, `willow`, `lake`, `luke`, `alx`, `kate`, `coach`.
 
 Agents missing from the file keep their previous values (on first load, `idle` with an empty caption).
 Unknown ids are ignored.
@@ -85,5 +92,5 @@ Behavior:
 
 ## Phase 2 hook-up (suggested)
 A small job (cron or agent hook) runs every 1–5 minutes, collects each agent's current state and
-a sanitized one-line task, appends new handoffs, and writes `status.json` next to `office.html`.
+a sanitized one-line task, appends new handoffs, and writes `status.json` next to `index.html`.
 See `status.sample.json` for a complete example.

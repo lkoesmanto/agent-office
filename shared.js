@@ -1,11 +1,10 @@
 /* =========================================================================
    Agent office: shared runtime for index.html (Pixel) and 3d.html (3D)
    - Agents, demo generator, status.json data layer, handoff queue
-   - Header chrome: Pixel | 3D switch, badge, Refresh / Pause, settings
-   - Live controls: paused by default; Refresh goes live (polls every 60 s)
-     and optionally POSTs a webhook; auto-pause 2 h after the last Refresh.
-   Webhook settings live ONLY in this browser's localStorage.
-   Query params: ?demo=1  ?status=<url>  ?autopause=<minutes>  ?hour=<0-23>
+   - Header chrome: Pixel | 3D switch, badge, Refresh / Pause
+   - Live controls: paused by default; Refresh goes live and re-reads status.json
+     (now + every 60 s); auto-pause 2 h after the last Refresh. No webhooks, no stored secrets.
+   Query params: ?demo=1  ?status=<url>  ?autopause=<minutes>  ?hour=<0-23>  ?handoff=<from>,<to> (demo test)
    ========================================================================= */
 (function(){
 "use strict";
@@ -15,8 +14,8 @@ const STATUS_URL = params.get("status") || "status.json";
 const POLL_MS = 60000;
 const AP = parseFloat(params.get("autopause"));
 const AUTOPAUSE_MS = (AP > 0 ? AP : 120) * 60000;
-const COOLDOWN_MS = 5 * 60000, UPDATING_MAX_MS = 5 * 60000;
-const LS_SETTINGS = "agentOffice.settings.v1", LS_LASTREQ = "agentOffice.lastUpdateRequest";
+// Earlier versions stored webhook settings in localStorage; wipe them so no key lingers in the browser.
+try { ["agentOffice.settings.v1","agentOffice.lastUpdateRequest"].forEach(k=>localStorage.removeItem(k)); } catch(e) {}
 const STATES = ["working", "thinking", "idle", "stretching"];
 const MAX_WALKERS = 3;
 
@@ -148,6 +147,8 @@ function startDemoData(){
   const init=["working","thinking","working","working","idle","thinking","working","working","idle","thinking","working","idle","working"];
   AGENTS.forEach((a,i)=>{ a.state=init[i]; a.task=DEMO_TASKS[a.id][i%DEMO_TASKS[a.id].length]; a.nextDemo=nowS()+2+hash(i)*5; });
   nextDemoHandoff=nowS()+0.4;
+  const fh=(params.get("handoff")||"").split(",");
+  if(fh.length>=2 && byId[fh[0]] && byId[fh[1]]){ enqueueHandoff({from:fh[0],to:fh[1],label:(fh.slice(2).join(",")||"handoff").slice(0,80)}); nextDemoHandoff=nowS()+6; }
   const st=$("stream"); if(st) st.innerHTML="";
   const t0=Date.now();
   [["lake","archangel","invoice for approval",190000],["ote2","archangel","redline summary",95000]]
@@ -171,7 +172,7 @@ function demoTick(){
 
 /* ---------- live data ---------- */
 let mode="paused";              // "paused" | "live" | "demo" (forced via ?demo=1)
-let liveUntil=0, pollTimer=null, autoTimer=null, liveLoadedOnce=false, lastUpdatedAt=null, updating=null, pollSeq=0;
+let liveUntil=0, pollTimer=null, autoTimer=null, liveLoadedOnce=false, lastUpdatedAt=null, pollSeq=0;
 const seen=new Set();
 function applyStatus(j){
   for(const s of j.agents){
@@ -207,44 +208,11 @@ async function poll(){
     if(!j || !Array.isArray(j.agents)) throw new Error("bad schema");
     if(mode!=="live" || seq!==pollSeq) return;          // paused (or superseded) while fetching
     applyStatus(j);
-    const u=String(j.updated_at||"");
-    if(updating){
-      const ut=Date.parse(u);
-      if(updating.baseline==null && !(ut>=updating.since-5000)) updating.baseline=u;
-      else if((updating.baseline!=null && u!==updating.baseline) || ut>=updating.since-5000){ updating=null; setNote("Fresh snapshot received"); }
-    }
-    lastUpdatedAt=u;
+    lastUpdatedAt=String(j.updated_at||"");
   }catch(e){
     if(mode==="live" && !liveLoadedOnce) setNote("No snapshot published yet, showing demo until one is available",true);
   }
   updateUI();
-}
-
-/* ---------- settings (localStorage only) ---------- */
-function loadSettings(){ try{ return JSON.parse(localStorage.getItem(LS_SETTINGS))||{}; }catch(e){ return {}; } }
-function saveSettings(s){ try{ localStorage.setItem(LS_SETTINGS,JSON.stringify(s)); return true; }catch(e){ return false; } }
-function clearSettings(){ try{ localStorage.removeItem(LS_SETTINGS); localStorage.removeItem(LS_LASTREQ); }catch(e){} }
-function lastReq(){ try{ return +localStorage.getItem(LS_LASTREQ)||0; }catch(e){ return 0; } }
-function cooldownLeft(){ return loadSettings().webhook ? Math.max(0,lastReq()+COOLDOWN_MS-Date.now()) : 0; }
-
-async function requestUpdate(){
-  const s=loadSettings();
-  if(!s.webhook) return;
-  if(cooldownLeft()>0){ setNote("An update was requested in the last 5 minutes, showing the latest snapshot"); return; }
-  try{ localStorage.setItem(LS_LASTREQ,String(Date.now())); }catch(e){}
-  updating={since:Date.now(), baseline:lastUpdatedAt};
-  updateUI();
-  const name=(s.header||"").trim()||"Authorization";
-  const headers={"Content-Type":"application/json"};
-  if(s.key) headers[name] = name.toLowerCase()==="authorization" ? "Bearer "+s.key : s.key;
-  try{
-    const r=await fetch(s.webhook,{method:"POST",mode:"cors",credentials:"omit",cache:"no-store",referrerPolicy:"no-referrer",
-      headers, body:JSON.stringify({action:"refresh_status",requested_at:new Date().toISOString()})});
-    if(!r.ok) throw new Error("HTTP "+r.status);
-  }catch(e){
-    if(e instanceof TypeError){ try{ localStorage.removeItem(LS_LASTREQ); }catch(_){} } // network/CORS: allow a retry
-    updating=null; setNote("Couldn't request an update, showing the last snapshot",true); updateUI();
-  }
 }
 
 /* ---------- modes ---------- */
@@ -252,17 +220,16 @@ function stopPolling(){ clearInterval(pollTimer); pollTimer=null; clearTimeout(a
 function enterPaused(){
   stopPolling();
   mode = FORCE_DEMO ? "demo" : "paused";
-  liveUntil=0; updating=null; liveLoadedOnce=false; seen.clear();
+  liveUntil=0; liveLoadedOnce=false; seen.clear();
   walkers.forEach(w=>w.addFeed=false);
   document.body.classList.remove("is-live");
   startDemoData(); updateUI();
 }
-function goLive(){
+function goLive(){                                           // Refresh: go live and re-read status.json now
   if(FORCE_DEMO) return;
   if(mode!=="live"){ mode="live"; liveLoadedOnce=false; seen.clear(); document.body.classList.add("is-live"); }
   liveUntil=Date.now()+AUTOPAUSE_MS;                       // (re)start the auto-pause window
   clearTimeout(autoTimer); autoTimer=setTimeout(checkAutoPause, AUTOPAUSE_MS);
-  requestUpdate();
   clearInterval(pollTimer); pollTimer=setInterval(poll,POLL_MS); poll();
   updateUI();
 }
@@ -291,18 +258,10 @@ function updateUI(){
     const head = liveLoadedOnce ? `Live · updated ${isNaN(ud)?"–":fmtHM.format(new Date(ud))} WIB` : "Live · waiting for snapshot";
     bt.textContent = `${head} · auto-pause in ${fmtLeft(liveUntil-Date.now())}`;
   }
-  if(updating && Date.now()-updating.since>UPDATING_MAX_MS){ updating=null; setNote("No new snapshot yet, showing the last one"); }
-  const cd=cooldownLeft();
-  let html="Refresh", dis=false, title="Go live: load the latest snapshot and poll every minute";
-  if(FORCE_DEMO){ dis=true; title="Demo mode (?demo=1)"; }
-  else if(updating){ dis=true; html='<span class="spin"></span>Updating…'; }
-  else if(live && cd>0){ dis=true; const s=Math.ceil(cd/1000); html=`Refresh in ${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; title="An update can be requested once every 5 minutes"; }
-  if(br.innerHTML!==html) br.innerHTML=html;
-  br.disabled=dis; br.title=title;
+  br.disabled=FORCE_DEMO;
+  br.title=FORCE_DEMO?"Demo mode (?demo=1)":(live?"Re-read status.json now and restart the 2-hour window":"Go live: read status.json now and every minute");
   bp.disabled=!live;
 }
-
-const GEAR='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
 
 function mount(view){
   const q=esc(location.search);
@@ -324,42 +283,13 @@ function mount(view){
         </div>
         <button class="btn primary" id="btnRefresh" type="button">Refresh</button>
         <button class="btn grey" id="btnPause" type="button" disabled>Pause</button>
-        <button class="btn icon" id="btnGear" type="button" aria-label="Settings" title="Live update settings" aria-expanded="false">${GEAR}</button>
       </div>
       <div class="note" id="note" aria-live="polite"></div>
-      <div class="settings" id="settings" role="dialog" aria-label="Live update settings">
-        <h3>Live update settings</h3>
-        <p>Saved only in this browser (localStorage), never in the site or its source.</p>
-        <label for="sWebhook">Webhook URL</label>
-        <input id="sWebhook" type="url" placeholder="https://… (optional)" autocomplete="off" spellcheck="false">
-        <label for="sKey">Sender key</label>
-        <input id="sKey" type="password" placeholder="optional" autocomplete="off">
-        <label for="sHeader">Key header name</label>
-        <input id="sHeader" type="text" placeholder="Authorization" autocomplete="off" spellcheck="false">
-        <p style="margin:6px 0 0">Authorization is sent as “Bearer &lt;key&gt;”. Any other header name sends the raw key.</p>
-        <div class="acts"><button class="btn grey" id="sClear" type="button">Clear</button><span class="saved" id="sSaved"></span><button class="btn primary" id="sSave" type="button">Save</button></div>
-      </div>
     </div>`;
   $("officeFeed").innerHTML=`<h2>Handoffs<small>Agent → agent</small></h2><ul class="stream" id="stream"></ul>`;
   $("officeFooter").innerHTML=`<span>Leo Koesmanto · 1 human, 13 agents · task lines are generic</span><span id="clock"></span>`;
-
   $("btnRefresh").addEventListener("click",goLive);
   $("btnPause").addEventListener("click",()=>{ enterPaused(); setNote("Paused · polling stopped"); });
-  const panel=$("settings"), gear=$("btnGear");
-  const fill=()=>{ const s=loadSettings(); $("sWebhook").value=s.webhook||""; $("sKey").value=s.key||""; $("sHeader").value=s.header||"Authorization"; $("sSaved").textContent=""; };
-  const open=v=>{ panel.classList.toggle("open",v); gear.setAttribute("aria-expanded",String(v)); if(v) fill(); };
-  gear.addEventListener("click",e=>{ e.stopPropagation(); open(!panel.classList.contains("open")); });
-  panel.addEventListener("click",e=>e.stopPropagation());
-  document.addEventListener("click",()=>open(false));
-  document.addEventListener("keydown",e=>{ if(e.key==="Escape") open(false); });
-  $("sSave").addEventListener("click",()=>{
-    const webhook=$("sWebhook").value.trim();
-    if(webhook && !/^https?:\/\//i.test(webhook)){ $("sSaved").textContent="URL must start with https://"; $("sSaved").style.color="#B25E00"; return; }
-    const ok=saveSettings({webhook, key:$("sKey").value, header:($("sHeader").value.trim()||"Authorization")});
-    $("sSaved").style.color=""; $("sSaved").textContent=ok?"Saved in this browser":"Couldn't save (storage blocked)"; updateUI();
-  });
-  $("sClear").addEventListener("click",()=>{ clearSettings(); fill(); $("sSaved").textContent="Cleared"; updateUI(); });
-
   const clock=$("clock"), tc=()=>clock.textContent="Jakarta · "+fmtHMS.format(new Date())+" WIB";
   tc(); setInterval(tc,1000); setInterval(updateUI,500);
   enterPaused();                                            // default: paused, demo, no fetch
@@ -369,5 +299,5 @@ function tick(){ demoTick(); AGENTS.forEach(renderLabel); }
 
 window.Office = { AGENTS, byId, effState, params, fmtHM, fmtHMS, hash, nowS, jakartaHour, makeLabel, renderLabel,
   walkers, nextHandoff, beginWalk, deliver, endWalk, busy, tick, mount,
-  _debug:{ get mode(){return mode;}, get liveUntil(){return liveUntil;}, AUTOPAUSE_MS, get updating(){return updating;}, get pollTimer(){return pollTimer;} } };
+  _debug:{ get mode(){return mode;}, get liveUntil(){return liveUntil;}, AUTOPAUSE_MS, get pollTimer(){return pollTimer;} } };
 })();
