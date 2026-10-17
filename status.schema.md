@@ -1,21 +1,33 @@
 # `status.json` schema — Leo's AI agent office
 
-`office.html` renders the pixel office from a single status object. It loads
-`status.json` (same folder) on page load and then **every 60 seconds**.
+`index.html` (Pixel) and `3d.html` (3D) render the office from a single status object, `status.json`
+in the same folder. Shared logic lives in `shared.js` / `shared.css`.
 
-| Situation | What the page shows |
+> Browsers block `fetch()` on `file://`, so serve the folder over HTTP (GitHub Pages, or `python3 -m http.server`).
+> If a fetch fails before any snapshot has loaded, the demo keeps running and a note says so. Once live data has loaded, the last snapshot stays on screen.
+
+## Live controls (header)
+
+The page **never fetches `status.json` on load**. It opens **paused**, runs the demo animation and shows `Paused · demo`.
+
+| Control | Behavior |
 |---|---|
-| `status.json` loads and has an `agents` array | **Live** mode, with the badge `Live · updated HH:MM WIB` (from `updated_at`) |
-| File missing, 404, invalid JSON, or no `agents` array, and no live data loaded yet | **Demo** mode, with the badge `Demo data` and the built-in generator running |
-| A refresh fails after live data has loaded | Keeps the last live snapshot (no flip back to demo) |
-| `?demo=1` in the URL | Always demo, never fetches |
+| **Refresh** (blue) | Goes **live**: fetches `status.json` now and every 60 s (with a `?t=<ms>` cache-buster). The badge reads `Live · updated HH:MM WIB · auto-pause in 1h59m`. If a webhook is configured, also POSTs to it (see below). Pressing it again while live **restarts the 2-hour window**. |
+| **Pause** (grey) | Stops polling immediately and returns to paused/demo. |
+| **Auto-pause** | Exactly 2 h after the most recent Refresh press, the page pauses itself. |
+| **Gear** | Settings: *Webhook URL*, *Sender key*, *Key header name* (default `Authorization`). Saved **only in this browser's localStorage** (`agentOffice.settings.v1`). **Clear** removes them. Never stored in the repo or page source. |
 
-Other query params:
-- `?status=<url>` loads a different file, e.g. `office.html?status=status.sample.json`
-- `?hour=<0-23.99>` overrides the Jakarta hour used for the window light (for previews)
+Webhook request (only if a URL is set):
+- `POST <Webhook URL>`, `Content-Type: application/json`, body `{"action":"refresh_status","requested_at":"<ISO UTC>"}`.
+- Key header: if the header name is `Authorization`, it is sent as `Bearer <key>`. Any other name (e.g. `X-Sender-Key`) sends the raw key. With no key set, no key header is sent.
+- Fire and forget. The Refresh button shows **Updating…** until `status.json`'s `updated_at` changes (or reaches the request time), or 5 minutes pass.
+- At most **once per 5 minutes** (stored as `agentOffice.lastUpdateRequest`). While live and inside that window, Refresh is disabled and shows `Refresh in m:ss`. Pressing Refresh from paused during the window goes live without re-sending the request.
+- On a CORS/network/HTTP failure, the page shows a quiet note: *Couldn't request an update, showing the last snapshot*. The receiver must allow CORS from `https://lkoesmanto.github.io` (preflight `OPTIONS` for `Content-Type` + the key header).
+- Without a webhook, Refresh still goes live with whatever `status.json` is already published.
 
-> Note: browsers block `fetch()` on `file://`. To use live mode, serve the folder over HTTP
-> (for example `python3 -m http.server` in this folder, or any static host). Opened straight from disk, the page runs in demo mode.
+Query params: `?demo=1` (always demo; Refresh disabled), `?status=<url>` (snapshot URL used when live),
+`?autopause=<minutes>` (test override for the 2 h window), `?hour=<0-23>` (window light preview).
+The **Pixel | 3D** switch keeps the current query string.
 
 ## Top-level object
 
