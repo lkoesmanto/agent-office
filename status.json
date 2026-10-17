@@ -1,75 +1,75 @@
 {
- "updated_at": "2026-10-17T16:55:47+07:00",
+ "updated_at": "2026-10-17T17:00:50+07:00",
  "agents": [
   {
    "id": "archangel",
    "name": "Archangel",
    "role": "Chief of Staff",
    "state": "working",
-   "task": "Refreshing the office dashboard"
+   "task": "Leading the team stretch"
   },
   {
    "id": "waktu",
    "name": "Waktu",
    "role": "Time Keeper",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "working",
+   "task": "Stretching and warming up"
   },
   {
    "id": "willow",
    "name": "Willow",
    "role": "Marketing",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "working",
+   "task": "Stretching and warming up"
   },
   {
    "id": "atlas",
    "name": "Atlas",
    "role": "Researcher",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "working",
+   "task": "Stretching and warming up"
   },
   {
    "id": "wish",
    "name": "Wish",
    "role": "Strategy",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "working",
+   "task": "Stretching and warming up"
   },
   {
    "id": "altmodei",
    "name": "AltModei",
    "role": "AI Strategist",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "working",
+   "task": "Stretching and warming up"
   },
   {
    "id": "brin",
    "name": "Brin",
    "role": "CPO \u00b7 Product",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "working",
+   "task": "Stretching and warming up"
   },
   {
    "id": "lake",
    "name": "Lake",
    "role": "Finance",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "working",
+   "task": "Stretching and warming up"
   },
   {
    "id": "ote2",
    "name": "Ote2",
    "role": "Legal review",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "working",
+   "task": "Stretching and warming up"
   },
   {
    "id": "luke",
    "name": "Luke",
    "role": "HR & Hiring",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "working",
+   "task": "Stretching and warming up"
   },
   {
    "id": "alx",
@@ -82,15 +82,15 @@
    "id": "kate",
    "name": "Kate",
    "role": "Travel",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "working",
+   "task": "Stretching and warming up"
   },
   {
    "id": "coach",
    "name": "Presentation Coach",
    "role": "Decks & talks",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "working",
+   "task": "Stretching and warming up"
   }
  ],
  "handoffs": []
