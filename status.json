@@ -1,0 +1,97 @@
+{
+ "updated_at": "2026-10-17T16:13:53+07:00",
+ "agents": [
+  {
+   "id": "archangel",
+   "name": "Archangel",
+   "role": "Chief of Staff",
+   "state": "working",
+   "task": "Publishing the live office dashboard"
+  },
+  {
+   "id": "waktu",
+   "name": "Waktu",
+   "role": "Time Keeper",
+   "state": "idle",
+   "task": "Standing by"
+  },
+  {
+   "id": "willow",
+   "name": "Willow",
+   "role": "Marketing",
+   "state": "idle",
+   "task": "Standing by"
+  },
+  {
+   "id": "atlas",
+   "name": "Atlas",
+   "role": "Researcher",
+   "state": "idle",
+   "task": "Standing by"
+  },
+  {
+   "id": "wish",
+   "name": "Wish",
+   "role": "Strategy",
+   "state": "idle",
+   "task": "Standing by"
+  },
+  {
+   "id": "altmodei",
+   "name": "AltModei",
+   "role": "AI Strategist",
+   "state": "idle",
+   "task": "Standing by"
+  },
+  {
+   "id": "brin",
+   "name": "Brin",
+   "role": "CPO \u00b7 Product",
+   "state": "idle",
+   "task": "Standing by"
+  },
+  {
+   "id": "lake",
+   "name": "Lake",
+   "role": "Finance",
+   "state": "idle",
+   "task": "Standing by"
+  },
+  {
+   "id": "ote2",
+   "name": "Ote2",
+   "role": "Legal review",
+   "state": "idle",
+   "task": "Standing by"
+  },
+  {
+   "id": "luke",
+   "name": "Luke",
+   "role": "HR & Hiring",
+   "state": "idle",
+   "task": "Standing by"
+  },
+  {
+   "id": "alx",
+   "name": "Alx",
+   "role": "IT",
+   "state": "idle",
+   "task": "Standing by"
+  },
+  {
+   "id": "kate",
+   "name": "Kate",
+   "role": "Travel",
+   "state": "idle",
+   "task": "Standing by"
+  },
+  {
+   "id": "coach",
+   "name": "Presentation Coach",
+   "role": "Decks & talks",
+   "state": "idle",
+   "task": "Standing by"
+  }
+ ],
+ "handoffs": []
+}
