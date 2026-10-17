@@ -1,6 +1,6 @@
 /* Shared styles for the agent office (pixel + 3D): header, controls, settings, feed. */
 :root{--ink:#1D1D1F;--muted:#6E6E73;--faint:#A1A1A6;--accent:#0071E3;--card:#F5F5F7;--line:#E8E8ED;
-      --working:#0071E3;--thinking:#8E44EF;--idle:#A1A1A6;--handoff:#FF9F0A}
+      --working:#0071E3;--thinking:#8E44EF;--idle:#A1A1A6;--handoff:#FF9F0A;--stretching:#2BC4A9}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#fff;color:var(--ink)}
 body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif;
@@ -71,6 +71,7 @@ footer{display:flex;justify-content:space-between;font-size:11px;color:var(--fai
 .lab[data-s="working"] .np i{background:var(--working);animation:blink 1s infinite}
 .lab[data-s="thinking"] .np i{background:var(--thinking)}
 .lab[data-s="handoff"] .np i{background:var(--handoff);animation:blink .6s infinite}
+.lab[data-s="stretching"] .np i{background:var(--stretching)}
 .lab[data-s="handoff"] .cap{color:#B25E00}
 .lab .cap.out{opacity:0;transform:translateY(3px)}
 

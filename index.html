@@ -181,14 +181,15 @@ function drawLounge(t){
 /* screens */
 function drawScreen(a,t){
   const x=a.cx-7,y=a.dy-10,w=14,h=10;
-  if(a.state==="working"){
+  const st=O.effState(a);
+  if(st==="working"){
     R(x,y,w,h,"#1D1D1F");
     const scroll=Math.floor(t*3+a.phase), cols=["#64D2FF","#BF5AF2","#30D158","#FFD60A","#F5F5F7"];
     for(let i=0;i<4;i++){ const n=scroll+i, ind=Math.floor(hash(a.seed+n*3)*3)*2, len=2+Math.floor(hash(a.seed*7+n)*(10-ind));
       R(x+1+ind,y+1+i*2,len,1,cols[Math.floor(hash(n+a.seed)*5)]); }
     if(Math.floor(t*2)%2) R(x+1,y+9,2,1,"#F5F5F7");
     if(hash(Math.floor(t*12)+a.seed)>.85){ ctx.fillStyle="rgba(255,255,255,.10)"; ctx.fillRect(x,y,w,h); }
-  } else if(a.state==="thinking"){
+  } else if(st==="thinking"){
     R(x,y,w,h,"#F5F5F7"); R(x+1,y+1,8,1,"#0071E3");
     for(let i=0;i<3;i++) R(x+1,y+3+i*2,[11,9,6][i],1,"#C7C7CC");
   } else {
@@ -209,11 +210,31 @@ function drawDesk(a,t){
   R(cx-14,dy+3,5,2,"#F5F5F7");
   if(nowS()<a.folderUntil){ R(cx+6,dy+1,6,3,"#0071E3"); R(cx+6,dy+1,6,1,"#FFFFFF"); }
 }
+/* standing beside the chair, arms overhead, swaying (per-agent timing) */
+function drawStretcher(a,t){
+  const L=a.look, x=a.cx+11, y=a.dy+28, sp=1.1+hash(a.seed)*0.6, ph=t*sp+a.phase;
+  const sway=Math.round(Math.sin(ph)*1.4), roll=((ph*0.5)%6)<1.2;   // occasional arms-down shoulder roll
+  R(x-4,y,9,1,"rgba(0,0,0,.08)");
+  R(x-3,y-6,2,6,L.pants); R(x+1,y-6,2,6,L.pants); R(x-3,y-1,2,1,"#1D1D1F"); R(x+1,y-1,2,1,"#1D1D1F");
+  const ux=x+Math.round(sway*0.5);
+  R(ux-4,y-13,8,7,L.shirt);
+  const hx=x+sway;
+  R(hx-3,y-19,6,6,L.skin); R(hx-3,y-20,6,2,L.hair); R(hx-3,y-19,1,3,L.hair); R(hx+2,y-19,1,3,L.hair);
+  if(L.long){ R(hx-4,y-19,1,6,L.hair); R(hx+3,y-19,1,6,L.hair); }
+  R(hx-2,y-16,1,1,"#1D1D1F"); R(hx+1,y-16,1,1,"#1D1D1F"); R(hx-1,y-14,2,1,"#E07A7A");
+  if(roll){ const r=Math.floor(t*6)%2; R(ux-5,y-13+r,1,6,L.shirt); R(ux+4,y-13+(1-r),1,6,L.shirt); R(ux-5,y-7+r,1,1,L.skin); R(ux+4,y-7+(1-r),1,1,L.skin); }
+  else { // arms straight up, hands together above the head
+    R(ux-5,y-21,1,8,L.shirt); R(ux+4,y-21,1,8,L.shirt);
+    R(hx+sway-4,y-24,2,3,L.shirt); R(hx+sway+2,y-24,2,3,L.shirt); R(hx+sway-2,y-26,4,2,L.skin);
+  }
+}
 function drawSeated(a,t){
   const {cx,dy}=a, L=a.look;
   const chair=()=>{ R(cx-1,dy+24,2,3,"#8E8E93"); R(cx-4,dy+27,8,1,"#8E8E93"); R(cx-5,dy+28,1,1,"#636366"); R(cx+4,dy+28,1,1,"#636366"); };
   if(a.walker){ chair(); R(cx-5,dy+16,10,3,"#48484A"); R(cx-5,dy+18,10,6,"#3A3A3C"); R(cx-5,dy+18,10,1,"#48484A"); return; }
-  const st=a.state, lean=st==="idle"?2:0, by=dy+lean;
+  const st=O.effState(a);
+  if(st==="stretching"){ chair(); R(cx-5,dy+16,10,3,"#48484A"); R(cx-5,dy+18,10,6,"#3A3A3C"); R(cx-5,dy+18,10,1,"#48484A"); drawStretcher(a,t); return; }
+  const lean=st==="idle"?2:0, by=dy+lean;
   let tilt=0; if(st==="thinking") tilt=Math.sin(t*1.6+a.phase)>.5?1:0;
   // body
   R(cx-4,by+14,8,9,L.shirt);

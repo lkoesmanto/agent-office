@@ -47,8 +47,11 @@ The **Pixel | 3D** switch keeps the current query string.
 | `id` | string | yes* | One of the fixed desk ids below. *If missing, matched by `name` (case-insensitive). |
 | `name` | string | no | Display name override (≤ 40 chars). |
 | `role` | string | no | Role shown on the nameplate (≤ 40 chars). |
-| `state` | `"working"` \| `"thinking"` \| `"idle"` | yes | Drives the animation. Unknown values are ignored and the previous state is kept. |
+| `state` | `"working"` \| `"thinking"` \| `"idle"` \| `"stretching"` | yes | Drives the animation. Unknown values are ignored and the previous state is kept. **`working` with a task containing "stretch" (case-insensitive) is shown as `stretching`.** |
 | `task` | string | yes | Caption under the desk (≤ 140 chars, clamped to 2 lines). **Keep it generic.** |
+
+Animations: **working** = typing, **thinking** = thought bubble, **idle** = leaning back with coffee,
+**stretching** = standing beside the chair, arms overhead, side bends and shoulder rolls (green-teal dot; per-agent timing offsets so the team doesn't move in lockstep).
 
 The `handoff` state is never written by hand. The page shows it automatically while an agent walks a handoff over.
 

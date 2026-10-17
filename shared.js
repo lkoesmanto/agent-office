@@ -17,7 +17,7 @@ const AP = parseFloat(params.get("autopause"));
 const AUTOPAUSE_MS = (AP > 0 ? AP : 120) * 60000;
 const COOLDOWN_MS = 5 * 60000, UPDATING_MAX_MS = 5 * 60000;
 const LS_SETTINGS = "agentOffice.settings.v1", LS_LASTREQ = "agentOffice.lastUpdateRequest";
-const STATES = ["working", "thinking", "idle"];
+const STATES = ["working", "thinking", "idle", "stretching"];
 const MAX_WALKERS = 3;
 
 const AGENTS = [
@@ -79,6 +79,12 @@ function fmtLeft(ms){
 }
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
+/* Effective animation state: "stretching" if set explicitly, or if a working agent's task mentions "stretch". */
+function effState(a){
+  if (a.state === "stretching" || (a.state === "working" && /stretch/i.test(a.task || ""))) return "stretching";
+  return a.state;
+}
+
 const byId = {};
 AGENTS.forEach((a,i)=>{ Object.assign(a,{index:i,phase:hash(i+1)*10,seed:i*17+3,state:"idle",task:"",
   walker:null,folderUntil:0,nextDemo:0,flashUntil:0}); byId[a.id]=a; });
@@ -93,7 +99,7 @@ function makeLabel(a){
 }
 function renderLabel(a){
   if (!a.el) return;
-  const s = a.walker ? "handoff" : a.state;
+  const s = a.walker ? "handoff" : effState(a);
   if (a.el.dataset.s!==s) a.el.dataset.s=s;
   if (a.nameEl.textContent!==a.name) a.nameEl.textContent=a.name;
   if (a.roleEl.textContent!==a.role) a.roleEl.textContent=a.role;
@@ -153,7 +159,7 @@ function demoTick(){
   AGENTS.forEach(a=>{
     if(a.walker||t<a.nextDemo) return;
     const pool=DEMO_TASKS[a.id]; a.task=pool[(pool.indexOf(a.task)+1)%pool.length];
-    if(Math.random()<.4) a.state=pick(["working","working","working","thinking","thinking","idle"]);
+    if(Math.random()<.4) a.state=pick(["working","working","working","thinking","thinking","idle","stretching"]);
     a.nextDemo=t+4+Math.random()*4;
   });
   if(t>=nextDemoHandoff){
@@ -314,7 +320,7 @@ function mount(view){
       <div class="row">
         <div class="legend">
           <span><i style="background:var(--working)"></i>Working</span><span><i style="background:var(--thinking)"></i>Thinking</span>
-          <span><i style="background:var(--handoff)"></i>Handoff</span><span><i style="background:var(--idle)"></i>Idle</span>
+          <span><i style="background:var(--handoff)"></i>Handoff</span><span><i style="background:var(--stretching)"></i>Stretching</span><span><i style="background:var(--idle)"></i>Idle</span>
         </div>
         <button class="btn primary" id="btnRefresh" type="button">Refresh</button>
         <button class="btn grey" id="btnPause" type="button" disabled>Pause</button>
@@ -361,7 +367,7 @@ function mount(view){
 
 function tick(){ demoTick(); AGENTS.forEach(renderLabel); }
 
-window.Office = { AGENTS, byId, params, fmtHM, fmtHMS, hash, nowS, jakartaHour, makeLabel, renderLabel,
+window.Office = { AGENTS, byId, effState, params, fmtHM, fmtHMS, hash, nowS, jakartaHour, makeLabel, renderLabel,
   walkers, nextHandoff, beginWalk, deliver, endWalk, busy, tick, mount,
   _debug:{ get mode(){return mode;}, get liveUntil(){return liveUntil;}, AUTOPAUSE_MS, get updating(){return updating;}, get pollTimer(){return pollTimer;} } };
 })();

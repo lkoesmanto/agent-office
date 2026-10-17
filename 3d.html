@@ -352,17 +352,18 @@ function buildPerson(a) {
   // label
   const lab = new CSS2DObject(O.makeLabel(a)); lab.center.set(0.5, 1); lab.position.set(0, 1.62, 0); root.add(lab);
   return { root, hips, torso, head, armL, armR, legL, legR, mug, folder, bubble, check, lab,
-    pose: { hipY: 0.5, tX: 0, hX: 0, hZ: 0, sLx: 0, sLz: 0, sRx: 0, sRz: 0, eL: 0, eR: 0, lL: 1.57, lR: 1.57, kL: -1.57, kR: -1.57, labY: 1.62 } };
+    pose: { hipY: 0.5, tX: 0, tZ: 0, hX: 0, hZ: 0, sLx: 0, sLz: 0, sRx: 0, sRz: 0, eL: 0, eR: 0, lL: 1.57, lR: 1.57, kL: -1.57, kR: -1.57, labY: 1.62 } };
 }
 function screenDraw(a, t) {
   const { g, c } = a.scr, w = c.width, h = c.height;
-  if (a.state === "working") {
+  const st = O.effState(a);
+  if (st === "working") {
     g.fillStyle = "#1D1D1F"; g.fillRect(0, 0, w, h);
     const sc = Math.floor(t * 3 + a.phase), cols = ["#64D2FF", "#BF5AF2", "#30D158", "#FFD60A", "#F5F5F7"];
     for (let i = 0; i < 7; i++) { const n = sc + i, ind = Math.floor(hash(a.seed + n * 3) * 3) * 10, len = 16 + Math.floor(hash(a.seed * 7 + n) * (80 - ind));
       g.fillStyle = cols[Math.floor(hash(n + a.seed) * 5)]; g.fillRect(8 + ind, 8 + i * 10, len, 4); }
     if (Math.floor(t * 2) % 2) { g.fillStyle = "#fff"; g.fillRect(8, 72, 8, 4); }
-  } else if (a.state === "thinking") {
+  } else if (st === "thinking") {
     g.fillStyle = "#F5F5F7"; g.fillRect(0, 0, w, h); g.fillStyle = "#0071E3"; g.fillRect(8, 8, 60, 6);
     g.fillStyle = "#C7C7CC"; [100, 84, 60, 92, 50].forEach((l, i) => g.fillRect(8, 22 + i * 10, l, 4));
   } else {
@@ -444,11 +445,26 @@ function poseAgent(a, t, dt) {
   let mugOn = false, folderOn = false, bubbleOn = false, sit = !w;
   Object.assign(tg, { hipY: 0.5, tX: 0, hX: 0, hZ: 0, sLx: 0.1, sLz: 0.08, sRx: 0.1, sRz: -0.08, eL: 0.3, eR: 0.3, lL: 1.57, lR: 1.57, kL: -1.57, kR: -1.57, labY: 1.62 });
   let px = a.x, pz = a.seatZ, yaw = 0, bob = 0;
-  if (!w) {
-    if (a.state === "working") {
+  const st = O.effState(a);
+  tg.tZ = 0;
+  if (!w && st === "stretching") {
+    // stand beside the chair facing the room; loop: reach up + side bends, then a shoulder roll
+    const sp = 0.85 + hash(a.seed) * 0.35, c = (t * sp + ph * 1.7) % 9;
+    px = a.x + 0.55; pz = a.seatZ + 0.1; yaw = Math.PI;
+    Object.assign(tg, { hipY: 0.9, lL: 0, lR: 0, kL: 0, kR: 0, labY: 2.05 });
+    if (c < 6.2) {
+      const bend = Math.sin(c / 6.2 * Math.PI * 2) * 0.3;
+      Object.assign(tg, { tZ: bend, hZ: bend * 0.4, hX: 0.15, sLx: 2.9, sLz: -0.15, sRx: 2.9, sRz: 0.15, eL: 0.15, eR: 0.15 });
+    } else {
+      const r = (c - 6.2) * 4.5;
+      Object.assign(tg, { tX: 0.04, hX: 0.05, sLx: 0.12 + Math.sin(r) * 0.3, sLz: 0.18 + Math.cos(r) * 0.12, sRx: 0.12 + Math.sin(r) * 0.3, sRz: -0.18 - Math.cos(r) * 0.12, eL: 0.2, eR: 0.2 });
+      bob = Math.max(0, Math.sin(r)) * 0.02;
+    }
+  } else if (!w) {
+    if (st === "working") {
       const k = t * 14 + ph * 3;
       Object.assign(tg, { tX: -0.12, hX: -0.12, sLx: 0.62, sLz: 0.1, sRx: 0.62, sRz: -0.1, eL: 1.05 + Math.max(0, Math.sin(k)) * 0.22, eR: 1.05 + Math.max(0, Math.sin(k + 2.1)) * 0.22 });
-    } else if (a.state === "thinking") {
+    } else if (st === "thinking") {
       Object.assign(tg, { tX: -0.04, hX: 0.05, hZ: Math.sin(t * 0.9 + ph) * 0.2, sLx: 0.5, sLz: 0.1, eL: 0.9, sRx: 0.55, sRz: -0.45, eR: 2.35 + Math.sin(t * 2 + ph) * 0.05 });
       bubbleOn = true;
     } else {
@@ -489,7 +505,7 @@ function poseAgent(a, t, dt) {
   else { P.root.position.x = px; P.root.position.z = pz; }
   a.yaw = angDamp(a.yaw, yaw, 10, dt); P.root.rotation.y = a.yaw;
   P.hips.position.y = p.hipY + bob;
-  P.torso.rotation.x = p.tX; P.head.rotation.set(p.hX, 0, p.hZ);
+  P.torso.rotation.set(p.tX, 0, p.tZ); P.head.rotation.set(p.hX, 0, p.hZ);
   P.armL.sh.rotation.set(p.sLx, 0, p.sLz); P.armR.sh.rotation.set(p.sRx, 0, p.sRz);
   P.armL.el.rotation.x = p.eL; P.armR.el.rotation.x = p.eR;
   P.legL.hp.rotation.x = p.lL; P.legR.hp.rotation.x = p.lR; P.legL.kn.rotation.x = p.kL; P.legR.kn.rotation.x = p.kR;
@@ -497,14 +513,14 @@ function poseAgent(a, t, dt) {
   P.mug.visible = mugOn; a.deskMug.visible = !mugOn;
   P.folder.visible = folderOn;
   a.deskFolder.visible = nowS() < a.folderUntil;
-  a.chairBack.rotation.x = damp(a.chairBack.rotation.x, !w && a.state === "idle" ? 0.22 : 0, 6, dt);
+  a.chairBack.rotation.x = damp(a.chairBack.rotation.x, !w && st === "idle" ? 0.22 : 0, 6, dt);
   // thought bubble
   P.bubble.visible = bubbleOn;
   if (bubbleOn) { const cyc = (t + ph) % 6; P.bubble.material.map = cyc < 4 ? BUBBLE[Math.floor(t * 3) % 3] : BUBBLE[3]; P.bubble.position.y = 1.72 + Math.sin(t * 2 + ph) * 0.04; }
   // screen glow
-  const pulse = a.state === "working" && !w ? 0.85 + 0.15 * Math.sin(t * 6 + ph) : a.state === "idle" ? 0.8 : 0.9;
+  const pulse = st === "working" && !w ? 0.85 + 0.15 * Math.sin(t * 6 + ph) : a.state === "idle" ? 0.8 : 0.9;
   a.scrM.color.setScalar(w ? 0.55 : pulse);
-  a.glow.material.opacity = w ? 0.03 : a.state === "working" ? 0.10 + 0.07 * Math.sin(t * 6 + ph) : 0.06;
+  a.glow.material.opacity = w ? 0.03 : st === "working" ? 0.10 + 0.07 * Math.sin(t * 6 + ph) : 0.06;
 }
 
 /* ---------- loop ---------- */
