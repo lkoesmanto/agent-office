@@ -28,6 +28,7 @@ Webhook request (only if a URL is set):
 Query params: `?demo=1` (always demo; Refresh disabled), `?status=<url>` (snapshot URL used when live),
 `?autopause=<minutes>` (test override for the 2 h window), `?hour=<0-23>` (window light preview).
 The **Pixel | 3D** switch keeps the current query string.
+`3d.html` is a three.js (r160, pinned on jsDelivr) low-poly version of the same office. It uses the same `shared.js` data layer and controls, so every rule here applies to both views.
 
 ## Top-level object
 
