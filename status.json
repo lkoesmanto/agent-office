@@ -1,97 +1,110 @@
 {
- "updated_at": "2026-10-17T17:00:50+07:00",
+ "updated_at": "2026-10-17T17:55:00+07:00",
  "agents": [
   {
    "id": "archangel",
    "name": "Archangel",
    "role": "Chief of Staff",
    "state": "working",
-   "task": "Leading the team stretch"
+   "task": "Refreshing the office dashboard"
   },
   {
    "id": "waktu",
    "name": "Waktu",
    "role": "Time Keeper",
-   "state": "working",
-   "task": "Stretching and warming up"
+   "state": "idle",
+   "task": "Standing by"
   },
   {
    "id": "willow",
    "name": "Willow",
    "role": "Marketing",
-   "state": "working",
-   "task": "Stretching and warming up"
+   "state": "idle",
+   "task": "Standing by"
   },
   {
    "id": "atlas",
    "name": "Atlas",
    "role": "Researcher",
-   "state": "working",
-   "task": "Stretching and warming up"
+   "state": "idle",
+   "task": "Standing by"
   },
   {
    "id": "wish",
    "name": "Wish",
    "role": "Strategy",
-   "state": "working",
-   "task": "Stretching and warming up"
+   "state": "idle",
+   "task": "Standing by"
   },
   {
    "id": "altmodei",
    "name": "AltModei",
    "role": "AI Strategist",
-   "state": "working",
-   "task": "Stretching and warming up"
+   "state": "idle",
+   "task": "Standing by"
   },
   {
    "id": "brin",
    "name": "Brin",
    "role": "CPO \u00b7 Product",
-   "state": "working",
-   "task": "Stretching and warming up"
+   "state": "idle",
+   "task": "Standing by"
   },
   {
    "id": "lake",
    "name": "Lake",
    "role": "Finance",
-   "state": "working",
-   "task": "Stretching and warming up"
+   "state": "idle",
+   "task": "Standing by"
   },
   {
    "id": "ote2",
    "name": "Ote2",
    "role": "Legal review",
-   "state": "working",
-   "task": "Stretching and warming up"
+   "state": "idle",
+   "task": "Standing by"
   },
   {
    "id": "luke",
    "name": "Luke",
    "role": "HR & Hiring",
-   "state": "working",
-   "task": "Stretching and warming up"
+   "state": "idle",
+   "task": "Standing by"
   },
   {
    "id": "alx",
    "name": "Alx",
    "role": "IT",
-   "state": "working",
-   "task": "Cleaning up disk space on a laptop"
+   "state": "thinking",
+   "task": "Waiting on approval for a cleanup step"
   },
   {
    "id": "kate",
    "name": "Kate",
    "role": "Travel",
-   "state": "working",
-   "task": "Stretching and warming up"
+   "state": "idle",
+   "task": "Standing by"
   },
   {
    "id": "coach",
    "name": "Presentation Coach",
    "role": "Decks & talks",
-   "state": "working",
-   "task": "Stretching and warming up"
+   "state": "thinking",
+   "task": "Prepping talk content, waiting on a file"
   }
  ],
- "handoffs": []
+ "handoffs": [
+  {
+   "from": "archangel",
+   "to": "willow",
+   "label": "post brief",
+   "at": "2026-10-17T17:52:00+07:00"
+  },
+  {
+   "from": "willow",
+   "to": "archangel",
+   "label": "LinkedIn post draft",
+   "at": "2026-10-17T17:53:00+07:00"
+  }
+ ]
 }
