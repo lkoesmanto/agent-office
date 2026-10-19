@@ -1,110 +1,176 @@
 {
- "updated_at": "2026-10-17T17:55:00+07:00",
+ "updated_at": "2026-10-19T13:20:00+07:00",
  "agents": [
   {
    "id": "archangel",
    "name": "Archangel",
    "role": "Chief of Staff",
-   "state": "working",
-   "task": "Refreshing the office dashboard"
+   "state": "stretching",
+   "task": "Stretch break and a run up and down the stairs"
   },
   {
    "id": "waktu",
    "name": "Waktu",
    "role": "Time Keeper",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "stretching",
+   "task": "Stretch break and a run up and down the stairs"
   },
   {
    "id": "willow",
    "name": "Willow",
    "role": "Marketing",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "stretching",
+   "task": "Stretch break and a run up and down the stairs"
   },
   {
    "id": "atlas",
    "name": "Atlas",
    "role": "Researcher",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "stretching",
+   "task": "Stretch break and a run up and down the stairs"
   },
   {
    "id": "wish",
    "name": "Wish",
    "role": "Strategy",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "stretching",
+   "task": "Stretch break and a run up and down the stairs"
   },
   {
    "id": "altmodei",
    "name": "AltModei",
    "role": "AI Strategist",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "stretching",
+   "task": "Stretch break and a run up and down the stairs"
   },
   {
    "id": "brin",
    "name": "Brin",
    "role": "CPO \u00b7 Product",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "stretching",
+   "task": "Stretch break and a run up and down the stairs"
   },
   {
    "id": "lake",
    "name": "Lake",
    "role": "Finance",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "stretching",
+   "task": "Stretch break and a run up and down the stairs"
   },
   {
    "id": "ote2",
    "name": "Ote2",
    "role": "Legal review",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "stretching",
+   "task": "Stretch break and a run up and down the stairs"
   },
   {
    "id": "luke",
    "name": "Luke",
    "role": "HR & Hiring",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "stretching",
+   "task": "Stretch break and a run up and down the stairs"
   },
   {
    "id": "alx",
    "name": "Alx",
    "role": "IT",
-   "state": "thinking",
-   "task": "Waiting on approval for a cleanup step"
+   "state": "stretching",
+   "task": "Stretch break and a run up and down the stairs"
   },
   {
    "id": "kate",
    "name": "Kate",
    "role": "Travel",
-   "state": "idle",
-   "task": "Standing by"
+   "state": "stretching",
+   "task": "Stretch break and a run up and down the stairs"
   },
   {
    "id": "coach",
    "name": "Presentation Coach",
    "role": "Decks & talks",
-   "state": "thinking",
-   "task": "Prepping talk content, waiting on a file"
+   "state": "stretching",
+   "task": "Stretch break and a run up and down the stairs"
   }
  ],
  "handoffs": [
   {
-   "from": "archangel",
-   "to": "willow",
-   "label": "post brief",
-   "at": "2026-10-17T17:52:00+07:00"
+   "from": "waktu",
+   "to": "archangel",
+   "label": "stair run up",
+   "at": "2026-10-19T13:20:00+07:00"
   },
   {
    "from": "willow",
+   "to": "altmodei",
+   "label": "stair run up",
+   "at": "2026-10-19T13:20:06+07:00"
+  },
+  {
+   "from": "lake",
+   "to": "wish",
+   "label": "stair run up",
+   "at": "2026-10-19T13:20:12+07:00"
+  },
+  {
+   "from": "luke",
+   "to": "brin",
+   "label": "stair run up",
+   "at": "2026-10-19T13:20:18+07:00"
+  },
+  {
+   "from": "alx",
+   "to": "atlas",
+   "label": "stair run up",
+   "at": "2026-10-19T13:20:24+07:00"
+  },
+  {
+   "from": "kate",
+   "to": "ote2",
+   "label": "stair run up",
+   "at": "2026-10-19T13:20:30+07:00"
+  },
+  {
+   "from": "coach",
    "to": "archangel",
-   "label": "LinkedIn post draft",
-   "at": "2026-10-17T17:53:00+07:00"
+   "label": "stair run up",
+   "at": "2026-10-19T13:20:36+07:00"
+  },
+  {
+   "from": "archangel",
+   "to": "waktu",
+   "label": "stair run down",
+   "at": "2026-10-19T13:20:42+07:00"
+  },
+  {
+   "from": "altmodei",
+   "to": "willow",
+   "label": "stair run down",
+   "at": "2026-10-19T13:20:48+07:00"
+  },
+  {
+   "from": "wish",
+   "to": "lake",
+   "label": "stair run down",
+   "at": "2026-10-19T13:20:54+07:00"
+  },
+  {
+   "from": "brin",
+   "to": "luke",
+   "label": "stair run down",
+   "at": "2026-10-19T13:21:00+07:00"
+  },
+  {
+   "from": "atlas",
+   "to": "alx",
+   "label": "stair run down",
+   "at": "2026-10-19T13:21:06+07:00"
+  },
+  {
+   "from": "ote2",
+   "to": "kate",
+   "label": "stair run down",
+   "at": "2026-10-19T13:21:12+07:00"
   }
  ]
 }
