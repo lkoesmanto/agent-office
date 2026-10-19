@@ -1,96 +1,96 @@
 {
- "updated_at": "2026-10-19T13:20:00+07:00",
+ "updated_at": "2026-10-19T13:27:00+07:00",
  "agents": [
   {
    "id": "archangel",
    "name": "Archangel",
    "role": "Chief of Staff",
-   "state": "stretching",
-   "task": "Stretch break and a run up and down the stairs"
+   "state": "working",
+   "task": "Updating the office dashboard"
   },
   {
    "id": "waktu",
    "name": "Waktu",
    "role": "Time Keeper",
-   "state": "stretching",
-   "task": "Stretch break and a run up and down the stairs"
+   "state": "idle",
+   "task": "Back at desk, standing by"
   },
   {
    "id": "willow",
    "name": "Willow",
    "role": "Marketing",
-   "state": "stretching",
-   "task": "Stretch break and a run up and down the stairs"
+   "state": "idle",
+   "task": "Back at desk, standing by"
   },
   {
    "id": "atlas",
    "name": "Atlas",
    "role": "Researcher",
-   "state": "stretching",
-   "task": "Stretch break and a run up and down the stairs"
+   "state": "idle",
+   "task": "Back at desk, standing by"
   },
   {
    "id": "wish",
    "name": "Wish",
    "role": "Strategy",
-   "state": "stretching",
-   "task": "Stretch break and a run up and down the stairs"
+   "state": "idle",
+   "task": "Back at desk, standing by"
   },
   {
    "id": "altmodei",
    "name": "AltModei",
    "role": "AI Strategist",
-   "state": "stretching",
-   "task": "Stretch break and a run up and down the stairs"
+   "state": "idle",
+   "task": "Back at desk, standing by"
   },
   {
    "id": "brin",
    "name": "Brin",
    "role": "CPO \u00b7 Product",
-   "state": "stretching",
-   "task": "Stretch break and a run up and down the stairs"
+   "state": "idle",
+   "task": "Back at desk, standing by"
   },
   {
    "id": "lake",
    "name": "Lake",
    "role": "Finance",
-   "state": "stretching",
-   "task": "Stretch break and a run up and down the stairs"
+   "state": "idle",
+   "task": "Back at desk, standing by"
   },
   {
    "id": "ote2",
    "name": "Ote2",
    "role": "Legal review",
-   "state": "stretching",
-   "task": "Stretch break and a run up and down the stairs"
+   "state": "idle",
+   "task": "Back at desk, standing by"
   },
   {
    "id": "luke",
    "name": "Luke",
    "role": "HR & Hiring",
-   "state": "stretching",
-   "task": "Stretch break and a run up and down the stairs"
+   "state": "idle",
+   "task": "Back at desk, standing by"
   },
   {
    "id": "alx",
    "name": "Alx",
    "role": "IT",
-   "state": "stretching",
-   "task": "Stretch break and a run up and down the stairs"
+   "state": "idle",
+   "task": "Back at desk, standing by"
   },
   {
    "id": "kate",
    "name": "Kate",
    "role": "Travel",
-   "state": "stretching",
-   "task": "Stretch break and a run up and down the stairs"
+   "state": "idle",
+   "task": "Back at desk, standing by"
   },
   {
    "id": "coach",
    "name": "Presentation Coach",
    "role": "Decks & talks",
-   "state": "stretching",
-   "task": "Stretch break and a run up and down the stairs"
+   "state": "idle",
+   "task": "Back at desk, standing by"
   }
  ],
  "handoffs": [
