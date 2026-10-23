@@ -537,6 +537,9 @@ AGENTS.forEach(a => {
   }
 });
 
+// group stretch spots: a row across the open front of the ground floor
+AGENTS.forEach((a, i) => { a.groupAt = { x: -7.3 + i * 0.8, z: 3.75 + (i % 2) * 0.45 }; });
+
 /* ---------- handoffs (cross-floor walks take the stairs) ---------- */
 function buildPath(a, b) {
   const p = [{ x: a.sx, y: a.fy, z: a.sz }, ...a.exit];
@@ -578,6 +581,7 @@ function poseAgent(a, t, dt) {
   if (!w && st === "stretching") {
     const sp = 0.85 + hash(a.seed) * 0.35, c = (t * sp + ph * 1.7) % 9;
     px = a.stretchAt.x; pz = a.stretchAt.z; yaw = Math.PI;
+    if (/(ground|bottom) floor|together/i.test(a.task || "")) { px = a.groupAt.x; pz = a.groupAt.z; py = 0; }
     Object.assign(tg, { hipY: 0.9, lL: 0, lR: 0, kL: 0, kR: 0, labY: 2.05 });
     if (c < 6.2) { const bend = Math.sin(c / 6.2 * Math.PI * 2) * 0.3;
       Object.assign(tg, { tZ: bend, hZ: bend * 0.4, hX: 0.15, sLx: 2.9, sLz: -0.15, sRx: 2.9, sRz: 0.15, eL: 0.15, eR: 0.15 }); }

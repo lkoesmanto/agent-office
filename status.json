@@ -1,96 +1,96 @@
 {
- "updated_at": "2026-10-19T13:27:00+07:00",
+ "updated_at": "2026-10-23T08:38:00+07:00",
  "agents": [
   {
    "id": "archangel",
    "name": "Archangel",
    "role": "Chief of Staff",
-   "state": "working",
-   "task": "Updating the office dashboard"
+   "state": "stretching",
+   "task": "Group stretch on the ground floor"
   },
   {
    "id": "waktu",
    "name": "Waktu",
    "role": "Time Keeper",
-   "state": "idle",
-   "task": "Back at desk, standing by"
+   "state": "stretching",
+   "task": "Group stretch on the ground floor"
   },
   {
    "id": "willow",
    "name": "Willow",
    "role": "Marketing",
-   "state": "idle",
-   "task": "Back at desk, standing by"
+   "state": "stretching",
+   "task": "Group stretch on the ground floor"
   },
   {
    "id": "atlas",
    "name": "Atlas",
    "role": "Researcher",
-   "state": "idle",
-   "task": "Back at desk, standing by"
+   "state": "stretching",
+   "task": "Group stretch on the ground floor"
   },
   {
    "id": "wish",
    "name": "Wish",
    "role": "Strategy",
-   "state": "idle",
-   "task": "Back at desk, standing by"
+   "state": "stretching",
+   "task": "Group stretch on the ground floor"
   },
   {
    "id": "altmodei",
    "name": "AltModei",
    "role": "AI Strategist",
-   "state": "idle",
-   "task": "Back at desk, standing by"
+   "state": "stretching",
+   "task": "Group stretch on the ground floor"
   },
   {
    "id": "brin",
    "name": "Brin",
    "role": "CPO \u00b7 Product",
-   "state": "idle",
-   "task": "Back at desk, standing by"
+   "state": "stretching",
+   "task": "Group stretch on the ground floor"
   },
   {
    "id": "lake",
    "name": "Lake",
    "role": "Finance",
-   "state": "idle",
-   "task": "Back at desk, standing by"
+   "state": "stretching",
+   "task": "Group stretch on the ground floor"
   },
   {
    "id": "ote2",
    "name": "Ote2",
    "role": "Legal review",
-   "state": "idle",
-   "task": "Back at desk, standing by"
+   "state": "stretching",
+   "task": "Group stretch on the ground floor"
   },
   {
    "id": "luke",
    "name": "Luke",
    "role": "HR & Hiring",
-   "state": "idle",
-   "task": "Back at desk, standing by"
+   "state": "stretching",
+   "task": "Group stretch on the ground floor"
   },
   {
    "id": "alx",
    "name": "Alx",
    "role": "IT",
-   "state": "idle",
-   "task": "Back at desk, standing by"
+   "state": "stretching",
+   "task": "Group stretch on the ground floor"
   },
   {
    "id": "kate",
    "name": "Kate",
    "role": "Travel",
-   "state": "idle",
-   "task": "Back at desk, standing by"
+   "state": "stretching",
+   "task": "Group stretch on the ground floor"
   },
   {
    "id": "coach",
    "name": "Presentation Coach",
    "role": "Decks & talks",
-   "state": "idle",
-   "task": "Back at desk, standing by"
+   "state": "stretching",
+   "task": "Group stretch on the ground floor"
   }
  ],
  "handoffs": [
